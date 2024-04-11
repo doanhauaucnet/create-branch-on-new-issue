@@ -7,15 +7,12 @@
 ```yaml
 name: Create Branch on New Issue
 on:
-  # [opened, edited, deleted, transferred, pinned, unpinned, closed, reopened, assigned, unassigned]
   issues:
-    types: [ opened, assigned ]
-  # [created, edited, deleted]
+    types: [opened, assigned]
   issue_comment:
-    types: [ created ]
-  # [opened, closed, synchronize]
+    types: [created]
   pull_request:
-    types: [ opened, closed ]
+    types: [opened, closed]
 
 permissions:
   contents: write
@@ -29,13 +26,29 @@ jobs:
       - name: Create Branch
         env:
           PAT: ${{ secrets.GITHUB_TOKEN }}
-          branch_name_prefix: "issue-"
-          branch_name_suffix: ""
+          MAX_TITLE_LENGTH: 30 # Set the maximum title length here
         run: |
-          issue_title=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
-          branch_name="${branch_name_prefix}$(echo $issue_title | tr '[:upper:]' '[:lower:]' | tr ' ' '-')${branch_name_suffix}"
+          if [[ $GITHUB_EVENT_NAME == "issues" ]]; then
+            title=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+          elif [[ $GITHUB_EVENT_NAME == "issue_comment" ]]; then
+            title=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+          elif [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            title=$(jq -r '.pull_request.title' $GITHUB_EVENT_PATH)
+          else
+            echo "Unsupported event type: $GITHUB_EVENT_NAME"
+            exit 1
+          fi
+          
+          event_name=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
+          event_type=$(jq -r '.action' $GITHUB_EVENT_PATH | tr '[:upper:]' '[:lower:]')
+          truncated_title=$(echo "$title" | cut -c 1-${MAX_TITLE_LENGTH})
+          sanitized_title=$(echo "$truncated_title" | tr -cd '[:alnum:]\n' | tr '[:space:]' '_')
+          sanitized_title=$(echo "$sanitized_title" | sed 's/_*$//')
+          branch_name="${event_name}-${sanitized_title}-${event_type}"
+          echo "Branch Name: $branch_name"
           git checkout -b $branch_name
           git push origin $branch_name
+
 ```
 
 ### ブランチ名をする
