@@ -20,12 +20,21 @@ jobs:
         env:
           PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          issue_title=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+          if [[ $GITHUB_EVENT_NAME == "issues" ]]; then
+            title=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
+          elif [[ $GITHUB_EVENT_NAME == "issue_comment" ]]; then
+            title=$(jq -r '.comment.body' $GITHUB_EVENT_PATH)
+          elif [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            title=$(jq -r '.pull_request.title' $GITHUB_EVENT_PATH)
+          else
+            echo "Unsupported event type: $GITHUB_EVENT_NAME"
+            exit 1
+          fi
           event_name=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
           event_type=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
-          sanitized_issue_title=$(echo "$issue_title" | tr -cd '[:alnum:]\n' | tr '[:space:]' '_')
-          sanitized_issue_title=$(echo "$sanitized_issue_title" | sed 's/_*$//')
-          branch_name="${event_name}-${sanitized_issue_title}-${event_type}"
+          sanitized_title=$(echo "$title" | tr -cd '[:alnum:]\n' | tr '[:space:]' '_')
+          sanitized_title=$(echo "$sanitized_title" | sed 's/_*$//')
+          branch_name="${event_name}-${sanitized_title}-${event_type}"
           echo "Branch Name: $branch_name"
           git checkout -b $branch_name
           git push origin $branch_name
