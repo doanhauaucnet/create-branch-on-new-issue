@@ -23,7 +23,9 @@ jobs:
           issue_title=$(jq -r '.issue.title' $GITHUB_EVENT_PATH)
           event_name=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
           event_type=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
-          branch_name="${event_name}-${issue_title}-${event_type}"
+          # Remove special characters and replace spaces with underscores
+          sanitized_issue_title=$(echo "$issue_title" | tr -cd '[:alnum:]\n' | tr '[:space:]' '_')
+          branch_name="${event_name}-${sanitized_issue_title}-${event_type}"
           echo "Branch Name: $branch_name"
           git checkout -b $branch_name
           git push origin $branch_name
