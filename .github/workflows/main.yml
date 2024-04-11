@@ -32,11 +32,10 @@ jobs:
             exit 1
           fi
           event_name=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
-          event_type=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
           truncated_title=$(echo "$title" | cut -c 1-${MAX_TITLE_LENGTH})
           sanitized_title=$(echo "$truncated_title" | tr -cd '[:alnum:]\n' | tr '[:space:]' '_')
           sanitized_title=$(echo "$sanitized_title" | sed 's/_*$//')
-          branch_name="${event_name}-${sanitized_title}-${event_type}"
+          branch_name="${event_name}-${sanitized_title}"
           echo "Branch Name: $branch_name"
           git checkout -b $branch_name
           git push origin $branch_name
