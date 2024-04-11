@@ -1,14 +1,6 @@
 # Installation
 
-## Step 1. Configure repository setting
-
-- Access setting page of repository
-
-- Navigate to Actions -> General
-
-- In "Workflow permissions" select "Read and write permissions"
-
-## Step 2. Configure GitHub Action
+## Configure GitHub Action
 
 Add this to your workflow YAML configuration:
 
@@ -24,6 +16,9 @@ on:
   # [opened, closed, synchronize]
   pull_request:
     types: [ opened, closed ]
+
+permissions:
+  contents: write
 
 jobs:
   create_branch_job:

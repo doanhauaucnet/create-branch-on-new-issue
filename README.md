@@ -1,14 +1,6 @@
 # インストール
 
-## ステップ 1. リポジトリ設定を構成する
-
-- リポジトリの設定ページへのアクセス
-
-- 「Actions」->「General」に移動する
-
-- 「Workflow permissions」で「Read and write permissions」を選択する
-
-## ステップ 2. GitHub アクションの構成する
+## アクションの構成する
 
 これをワークフロー YAML 構成に追加して
 
@@ -24,6 +16,9 @@ on:
   # [opened, closed, synchronize]
   pull_request:
     types: [ opened, closed ]
+
+permissions:
+  contents: write
 
 jobs:
   create_branch_job:
