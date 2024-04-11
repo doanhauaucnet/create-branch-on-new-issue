@@ -24,5 +24,6 @@ jobs:
           event_name=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
           event_type=$(echo $GITHUB_EVENT_NAME | tr '[:upper:]' '[:lower:]')
           branch_name="${event_name}-${issue_title}-${event_type}"
+          echo "Branch Name: $branch_name"
           git checkout -b $branch_name
           git push origin $branch_name
