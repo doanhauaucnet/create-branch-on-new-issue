@@ -1,0 +1,26 @@
+name: Create Branch on New Issue
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+
+jobs:
+  create_branch_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Create Branch
+        env:
+          PAT: ${{ secrets.GITHUB_TOKEN }}
+          MAX_TITLE_LENGTH: 30 # Set the maximum title length here
+        run: |
+          issue_number=$(echo ${{ github.event.issue.number }})
+          raw_issue_title=$(echo ${{ github.event.issue.title }})
+          truncated_issue_title=$(echo "$raw_issue_title" | cut -c 1-${MAX_TITLE_LENGTH})
+          sanitized_issue_title=$(echo $truncated_issue_title | tr '[:upper:]' '[:lower:]' | sed 's/[^a-zA-Z0-9-]//g')
+          echo "Branch Name: $sanitized_issue_title"
+          git checkout -b $sanitized_issue_title
+          git push origin $sanitized_issue_title

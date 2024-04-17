@@ -1,4 +1,4 @@
-name: Create Branch on New Issue
+name: Create Branch on defined event
 on:
   issues:
     types: [opened, assigned]
