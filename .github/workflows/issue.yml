@@ -20,7 +20,8 @@ jobs:
           issue_number=$(echo ${{ github.event.issue.number }})
           raw_issue_title=$(echo ${{ github.event.issue.title }})
           truncated_issue_title=$(echo "$raw_issue_title" | cut -c 1-${MAX_TITLE_LENGTH})
-          sanitized_issue_title=$(echo $truncated_issue_title | tr '[:upper:]' '[:lower:]' | sed 's/[^a-zA-Z0-9-]//g')
-          echo "Branch Name: $sanitized_issue_title"
-          git checkout -b $sanitized_issue_title
-          git push origin $sanitized_issue_title
+          sanitized_issue_title=$(echo "$truncated_issue_title" | tr '[:upper:]' '[:lower:]' | sed 's/ /-/g' | sed 's/[^a-zA-Z0-9-]//g')
+          branch_name="${issue_number}-${sanitized_issue_title}"
+          echo "Branch Name: $branch_name"
+          git checkout -b $branch_name
+          git push origin $branch_name
